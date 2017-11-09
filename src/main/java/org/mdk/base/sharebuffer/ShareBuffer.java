@@ -11,6 +11,14 @@ public class ShareBuffer {
     	this.buf = buf;
     }
     
+    public boolean isInReading() {
+		return inReading;
+	}
+
+	public boolean isInWriting() {
+		return inReading == false;
+	}
+    
     public void flip(){
     	inReading = !inReading;
     }
@@ -30,26 +38,36 @@ public class ShareBuffer {
     	writeIndex = this.buf.position();
     }
     
-    public byte readbyte(){
-    	byte rVal = getbyte(readIndex);
-    	readIndex++;
-    	return rVal;
+    public void startWrite(){
+    	this.buf.position(writeIndex);
     }
     
-    public ShareBuffer writebyte(byte val){
-    	putbyte(writeIndex,val);
-    	writeIndex++;
-    	return this;
+    public void completeWrite(int totalcounts){
+    	writeIndex +=totalcounts;
     }
     
-    private byte getbyte(int index){
-    	this.buf.position(index);
-    	return this.buf.get();
+    public void startRead1(){
+    	this.buf.position(readIndex);
+    	this.buf.limit(writeIndex);
     }
     
-    private ShareBuffer putbyte(int index,byte val){
-    	this.buf.position(index);
-    	this.buf.put(val);
-    	return this;
+    public void completeRead1(int totalcounts){
+    	readIndex +=totalcounts;
+    	if(readIndex > writeIndex){
+    		readIndex = writeIndex;
+    	}
     }
+    
+    public void startRead2(){
+    	this.buf.position(readMark);
+    	this.buf.limit(readIndex);
+    }
+    
+    public void completeRead2(int totalcounts){
+    	readMark +=totalcounts;
+    	if(readMark > readIndex){
+    		readMark = readIndex;
+    	}
+    }
+    
 }
