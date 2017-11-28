@@ -11,6 +11,10 @@ public class ShareBuffer {
     	this.buf = buf;
     }
     
+    public ByteBuffer getBuffer(){
+    	return this.buf;
+    }
+    
     public boolean isInReading() {
 		return inReading;
 	}
