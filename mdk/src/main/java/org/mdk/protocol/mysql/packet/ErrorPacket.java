@@ -22,7 +22,7 @@ import org.mdk.base.sharebuffer.ShareBuffer;
  * &#64;see http://forge.mysql.com/wiki/MySQL_Internals_ClientServer_Protocol#Error_Packet
  * </pre>
  * 
- * @author mycat
+ * @author hrz
  */
 public class ErrorPacket extends MySQLPacket {
    

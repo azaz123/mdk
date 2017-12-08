@@ -19,9 +19,9 @@ public class netBuffer extends ShareBuffer {
 		return readIndex==readMark;
 	}
 	
-	public int readChannel(SocketChannel channel){
+	public int readChannel(SocketChannel channel) throws IOException{
 		int readed = 0;
-		try{
+
 			if ( writeIndex > (buf.capacity() * 1 / 3) ) 
 				compact();
 			startWrite();
@@ -32,15 +32,13 @@ public class netBuffer extends ShareBuffer {
 
 			}
 			completeWrite(readed);
-		}catch(IOException e){
-			e.printStackTrace();
-		}
+	
 		return readed;
 	}
 	
-	public int writeChannel(SocketChannel channel){
+	public int writeChannel(SocketChannel channel) throws IOException{
 		int writed = 0;
-		try{
+
 			startRead2();
 			writed = channel.write(buf);
 			completeRead2(writed);
@@ -53,9 +51,7 @@ public class netBuffer extends ShareBuffer {
 			} else {
 				
 			}
-		}catch(IOException e){
-			e.printStackTrace();
-		}
+	
 		return writed;
 	}
 }

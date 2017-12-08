@@ -21,6 +21,7 @@ public class Reactor extends Thread {
     }
     
     public void acceptNewSocketChannel(final SocketChannel socketChannel) throws IOException {
+    	System.out.println("NIOACCEPTOR acceptNewSocketChannel");
     	pendingJobsTmp.offer(() -> {
 			try {
 				Session session = Context.sessionMan.createSession(Context,socketChannel, true);
@@ -52,10 +53,17 @@ public class Reactor extends Thread {
 	}
     
     @SuppressWarnings("unchecked")
-	protected void processConnectKey(SelectionKey curKey) throws IOException {
+	protected void processConnectKey(SelectionKey curKey) throws IOException,InterruptedException {
 		Session session = (Session) curKey.attachment();
 		try {
 			if (((SocketChannel) curKey.channel()).finishConnect()) {
+				while(true){
+					if(session.getCurNIOHandler() != null){
+						break;
+					}
+					Thread.sleep(10);
+				}
+				
 				session.getCurNIOHandler().onConnect(curKey, session, true, null);
 			}
 
@@ -84,7 +92,7 @@ public class Reactor extends Thread {
 			try {
 				Context.selector.select(Context.SELECTOR_TIMEOUT);
 				final Set<SelectionKey> keys = Context.selector.selectedKeys();
-				// logger.info("handler keys ,total " + selected);
+				// high performance design
 				if (keys.isEmpty()) {
 					if (!pendingJobsTmp.isEmpty()) {
 						ioTimes = 0;
@@ -96,15 +104,17 @@ public class Reactor extends Thread {
 					this.processNIOJob();
 				}
 				ioTimes++;
+				
 				for (final SelectionKey key : keys) {
 					Session curSession = (Session) key.attachment();
 					try {
 						int readdyOps = key.readyOps();
-						// 如果当前收到连接请求
+						
 						if ((readdyOps & SelectionKey.OP_ACCEPT) != 0) {
+							System.out.println("recv OP_ACCEPT event");
 							processAcceptKey(key);
 						}
-						// 如果当前连接事件
+						
 						else if ((readdyOps & SelectionKey.OP_CONNECT) != 0) {
 							this.processConnectKey(key);
 						} else if ((readdyOps & SelectionKey.OP_READ) != 0) {
@@ -114,8 +124,10 @@ public class Reactor extends Thread {
 							this.processWriteKey(key);
 						}
 					} catch (Exception e) {
+						e.printStackTrace();
 						key.cancel();
 						if (curSession != null) {
+							System.out.println("close socket");
 							curSession.close(false, "Socket IO err:" + e);
 							Context.allSessions.remove(curSession);
 							curSession = null;

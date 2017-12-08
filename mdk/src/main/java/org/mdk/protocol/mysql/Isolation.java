@@ -3,9 +3,9 @@ package org.mdk.protocol.mysql;
 
 
 /**
- * 事务隔离级别定义
+ * transaction Isolation
  *
- * @author mycat, ynfeng
+ * @author hrz
  */
 public enum Isolation {
     READ_UNCOMMITTED("SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;"),

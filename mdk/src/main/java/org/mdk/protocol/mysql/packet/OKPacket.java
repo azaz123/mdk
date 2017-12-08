@@ -21,7 +21,7 @@ import org.mdk.util.BufferUtil;
  * &#64;see http://forge.mysql.com/wiki/MySQL_Internals_ClientServer_Protocol#EOF_Packet
  * </pre>
  * 
- * @author mycat
+ * @author hrz
  */
 public class OKPacket extends MySQLPacket {
 	public byte pkgType = MySQLPacket.OK_PACKET;

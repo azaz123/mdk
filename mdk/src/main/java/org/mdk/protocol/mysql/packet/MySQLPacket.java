@@ -201,12 +201,12 @@ public abstract class MySQLPacket {
 	public bufferHelper buftool = new bufferHelper();
 
 	/**
-	 * 计算数据包大小，不包含包头长度。
+	 * calc size
 	 */
 	public abstract int calcPacketSize();
 
 	/**
-	 * 取得数据包信息
+	 * get packet info
 	 */
 	protected abstract String getPacketInfo();
 
@@ -217,7 +217,7 @@ public abstract class MySQLPacket {
 	}
 
 	/**
-	 * 写入到Buffer里（为了发送）
+	 * write operation
 	 * 
 	 * @param buffer
 	 */

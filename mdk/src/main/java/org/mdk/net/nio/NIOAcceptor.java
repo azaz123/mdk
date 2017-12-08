@@ -17,10 +17,13 @@ import java.nio.channels.SocketChannel;
 public class NIOAcceptor extends Reactor {
     public ReactorContext Context;
     private ServerSocketChannel ServerChannel;
+    private int currentReactorIndex = 0;
+    private int maxcurrentReactorIndex;
     
-    public NIOAcceptor(ReactorContext Context) throws IOException {
+    public NIOAcceptor(ReactorContext Context,int maxreactornum) throws IOException {
     	bindContext(Context);
 		this.Context = Context;
+		maxcurrentReactorIndex = maxreactornum;
 	}
     
     private void openServerChannel(Selector selector, String bindIp, int bindPort)
@@ -55,8 +58,15 @@ public class NIOAcceptor extends Reactor {
 	}
 
 	private Reactor getReactor(){
-		// 获取一个reactor对象
-		return new Reactor();
+		// get reactor object
+		
+		Reactor rReactor = nioRuntime.INSTANCE.reactorThreads[currentReactorIndex];
+		currentReactorIndex++;
+		if(currentReactorIndex == maxcurrentReactorIndex){
+			currentReactorIndex = 0;
+		}
+		
+		return rReactor;
 	}
 	
 	public Selector getSelector() {
@@ -64,22 +74,24 @@ public class NIOAcceptor extends Reactor {
 	}
 	
 	protected void processAcceptKey(SelectionKey curKey) throws IOException {
+		System.out.println("NIOACCEPTOR processAcceptKey");
 		ServerSocketChannel serverSocket = (ServerSocketChannel) curKey.channel();
-		// 接收通道，设置为非阻塞模式
-		final SocketChannel socketChannel = serverSocket.accept();		
+		// recv accept
+		final SocketChannel socketChannel = serverSocket.accept();	
+		socketChannel.configureBlocking(false);
 		accept(socketChannel);
 	}
 	
 	@SuppressWarnings("unchecked")
 	protected void processReadKey(SelectionKey curKey) throws IOException {
-		// only from cluster server socket
+		
 		Session session = (Session) curKey.attachment();
 		session.getCurNIOHandler().onSocketRead(session);
 	}
 
 	@SuppressWarnings("unchecked")
 	protected void processWriteKey(SelectionKey curKey) throws IOException {
-		// only from cluster server socket
+		
 		Session session = (Session) curKey.attachment();
 		session.getCurNIOHandler().onSocketWrite(session);
 	}

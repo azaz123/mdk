@@ -61,7 +61,7 @@ import org.mdk.base.sharebuffer.ShareBuffer;
  * @see http://forge.mysql.com/wiki/MySQL_Internals_ClientServer_Protocol#Command_Packet_.28Overview.29
  * </pre>
  * 
- * @author mycat
+ * @author hrz
  */
 public class CommandPacket extends MySQLPacket {
 

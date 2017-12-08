@@ -25,7 +25,7 @@ import org.mdk.base.sharebuffer.ShareBuffer;
  * &#64;see http://forge.mysql.com/wiki/MySQL_Internals_ClientServer_Protocol#Handshake_Initialization_Packet
  * </pre>
  *
- * @author mycat
+ * @author hrz
  */
 public class HandshakePacket extends MySQLPacket {
     private static final byte[] FILLER_13 = new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};

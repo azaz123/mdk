@@ -20,7 +20,7 @@ import org.mdk.base.sharebuffer.ShareBuffer;
  * &#64;see http://forge.mysql.com/wiki/MySQL_Internals_ClientServer_Protocol#EOF_Packet
  * </pre>
  * 
- * @author mycat
+ * @author hrz
  */
 public class EOFPacket extends MySQLPacket {
 	public byte pkgType = MySQLPacket.EOF_PACKET;

@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 
 /**
- * @author mycat
+ * @author hrz
  */
 public class MySQLMessage {
     public static final long NULL_LENGTH = -1;

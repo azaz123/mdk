@@ -2,9 +2,9 @@
 package org.mdk.protocol.mysql;
 
 /**
- * 字段类型及标识定义
+ * field type
  * 
- * @author mycat
+ * @author hrz
  */
 public interface Fields {
 

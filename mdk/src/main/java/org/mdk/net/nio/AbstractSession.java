@@ -12,12 +12,14 @@ import org.mdk.net.nio.NIOHandler;
 
 import org.mdk.net.nio.BufferPool;
 import org.mdk.net.nio.netBuffer;
+import org.mdk.protocol.mysql.tools.bufferHelper;
 
 
 
 import org.mdk.net.nio.SessionManager;
 
 public class AbstractSession implements Session {
+	public bufferHelper buftool = new bufferHelper();
 	public netBuffer sessionBuffer;
 	private NIOHandler nioHandler;
 	private int sessionId;
@@ -27,6 +29,7 @@ public class AbstractSession implements Session {
 	// Session是否关闭
 	private boolean closed;
 	public  ReactorContext Context;
+	public byte[] seed;
 	
 	public AbstractSession(ReactorContext Context, SocketChannel channel) throws IOException {
 		this(Context, channel, SelectionKey.OP_READ);
@@ -34,14 +37,22 @@ public class AbstractSession implements Session {
 	
 	public AbstractSession(ReactorContext Context, SocketChannel channel, int socketOpt)
 			throws IOException {
+		
 		this.Context = Context;
 		this.channel = channel;
 		InetSocketAddress clientAddr = (InetSocketAddress) channel.getRemoteAddress();
 		this.addr = clientAddr.getHostString() + ":" + clientAddr.getPort();
+		System.out.println("AbstractSession");
 		SelectionKey socketKey = channel.register(Context.selector, socketOpt, this);
+		System.out.println("AbstractSession end");
 		this.channelKey = socketKey;
 		this.sessionBuffer = new netBuffer(Context.bufPool.allocByteBuffer());
-		this.sessionId = 0;
+		this.sessionId = nioRuntime.INSTANCE.genSessionId();
+		
+	}
+	
+	public int getSessionId() {
+		return sessionId;
 	}
 	
 	public boolean readFromChannel() throws IOException {
