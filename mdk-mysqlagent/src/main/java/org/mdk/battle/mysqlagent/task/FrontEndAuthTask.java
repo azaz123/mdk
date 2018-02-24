@@ -21,6 +21,7 @@ import org.mdk.protocol.mysql.*;
 import org.mdk.battle.mysqlagent.*;
 import org.mdk.battle.mysqlagent.Handle.FrontEndDefaultHandle;
 import org.mdk.battle.mysqlagent.beans.FrontEndUserBean;
+import org.mdk.battle.mysqlagent.cmd.CmdStatus;
 import org.mdk.battle.mysqlagent.util.*;
 
 public class FrontEndAuthTask extends AbstractTask implements NIOHandler<FrontEndSession> {
@@ -29,7 +30,7 @@ public class FrontEndAuthTask extends AbstractTask implements NIOHandler<FrontEn
 	public void Excute() throws IOException {
 		// TODO Auto-generated method stub
 		setShareBuffer();
-		Context.FSession.setCurNIOHandler(this);
+		CmdInfo.Context.FSession.setCurNIOHandler(this);
 		
 	
 		byte[] rand1 = RandomUtil.randomBytes(8);
@@ -39,24 +40,24 @@ public class FrontEndAuthTask extends AbstractTask implements NIOHandler<FrontEn
 		byte[] seed = new byte[rand1.length + rand2.length];
 		System.arraycopy(rand1, 0, seed, 0, rand1.length);
 		System.arraycopy(rand2, 0, seed, rand1.length, rand2.length);
-		Context.FSession.seed = seed;
+		CmdInfo.Context.FSession.seed = seed;
 
 
 		HandshakePacket hs = new HandshakePacket();
 		hs.packetId = 0;
 		hs.protocolVersion = 10;
 		hs.serverVersion = "our-mysql-agent".getBytes();
-		hs.threadId = Context.FSession.getSessionId();
+		hs.threadId = CmdInfo.Context.FSession.getSessionId();
 		hs.seed = rand1;
 		hs.serverCapabilities = getServerCapabilities();
 
 		hs.serverStatus = 2;
 		hs.restOfScrambleBuff = rand2;
-		hs.write(Context.FSession.sessionBuffer);
+		hs.write(CmdInfo.Context.FSession.sessionBuffer);
 
-		Context.FSession.sessionBuffer.flip();
-		Context.FSession.sessionBuffer.readIndex = Context.FSession.sessionBuffer.writeIndex;
-		Context.FSession.writeToChannel();
+		CmdInfo.Context.FSession.sessionBuffer.flip();
+		CmdInfo.Context.FSession.sessionBuffer.readIndex = CmdInfo.Context.FSession.sessionBuffer.writeIndex;
+		CmdInfo.Context.FSession.writeToChannel();
 	}
 
 	@Override
@@ -64,12 +65,12 @@ public class FrontEndAuthTask extends AbstractTask implements NIOHandler<FrontEn
 		// TODO Auto-generated method stub
 		revertShareBuffer();
 		if(super.isLastTask){
-        	super.currentcmd.OnCmdResponse(super.Context,success);
+        	super.CmdInfo.currentcmd.OnCmdResponse(super.CmdInfo,success);
         }else{
         	if(success){
         		super.nextTask.Excute();
         	}else{
-        		super.currentcmd.OnCmdResponse(super.Context,success);
+        		super.CmdInfo.currentcmd.OnCmdResponse(super.CmdInfo,success);
         	}
         	
         }

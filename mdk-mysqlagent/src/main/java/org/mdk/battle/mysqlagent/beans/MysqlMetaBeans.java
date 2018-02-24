@@ -1,12 +1,17 @@
 package org.mdk.battle.mysqlagent.beans;
 
-public class MysqlMetaBeans {
+import java.util.*;
+
+public class MysqlMetaBeans  {
     public String ip;
     public int nPort;
     public String sUserName;
     public String sPassword;
     public String sName;
     public String sDatabase;
+    public int    nDefaultNodeNum;
+    public int    nMaxNodeNum;
+    public List<RunTimeMysqlMetaBeans> SessionMapObj = new ArrayList<RunTimeMysqlMetaBeans>();
     
     public String GetName(){
     	return sName;
@@ -40,6 +45,22 @@ public class MysqlMetaBeans {
     	this.nPort = nPort;
     }
     
+    public int GetDefNum(){
+    	return nDefaultNodeNum;
+    }
+    
+    public void SetDefNum(int nDefaultNodeNum){
+    	this.nDefaultNodeNum = nDefaultNodeNum;
+    }
+    
+    public int GetMaxNum(){
+    	return nMaxNodeNum;
+    }
+    
+    public void SetMaxNum(int nMaxNodeNum){
+    	this.nMaxNodeNum = nMaxNodeNum;
+    }
+    
     public String GetUserName(){
     	return sUserName;
     }
@@ -55,4 +76,6 @@ public class MysqlMetaBeans {
     public void SetPassword(String sPassword){
     	this.sPassword = sPassword;
     }
+    
+
 }

@@ -1,0 +1,19 @@
+combeanList:
+   -
+     ip: 123.206.135.216
+     nPort: 3306
+     sUserName: root
+     sPassword: 123456
+     sName: firstmysql
+     sDatabase: hrz1
+     nDefaultNodeNum: 10
+     nMaxNodeNum: 20
+   -
+     ip: 123.206.135.216
+     nPort: 3307
+     sUserName: root
+     sPassword: 123456
+     sName: secondmysql
+     sDatabase: hrz1
+     nDefaultNodeNum: 10
+     nMaxNodeNum: 20

@@ -22,6 +22,8 @@ import org.mdk.util.*;
 import org.mdk.battle.mysqlagent.util.*;
 import org.mdk.net.nio.*;
 import org.mdk.battle.mysqlagent.BackEndSessionManager;
+import org.mdk.battle.mysqlagent.beans.*;
+import org.mdk.battle.mysqlagent.cmd.*;
 
 
 
@@ -48,7 +50,12 @@ public class BackEndLoginTask extends AbstractTask implements NIOHandler<BackEnd
 		backendChannel.configureBlocking(false);
 		backendChannel.connect(serverAddress);
 		BackEndSession session = BackEndSessionManager.INSTANCE.createSession(nioRuntime.INSTANCE.Rc[0], backendChannel, false);
-		super.Context.BSession = session;
+		RunTimeMysqlMetaBeans RunTimeBeans = new RunTimeMysqlMetaBeans();
+		RunTimeBeans.beans = beans;
+		beans.SessionMapObj.add(RunTimeBeans);
+		BackEndSessionManager.INSTANCE.getSessionPool().putToGlobalpool(RunTimeBeans, session);
+		super.CmdInfo.Context.BSession = session;
+		super.CmdInfo.Context.BSession.SetBeans(beans);
 		session.setCurNIOHandler(this);
 	}
 	
@@ -111,12 +118,12 @@ public class BackEndLoginTask extends AbstractTask implements NIOHandler<BackEnd
 		// TODO Auto-generated method stub
 		revertShareBuffer();
         if(super.isLastTask){
-        	super.currentcmd.OnCmdResponse(super.Context,success);
+        	super.CmdInfo.currentcmd.OnCmdResponse(super.CmdInfo,success);
         }else{
         	if(success){
         		super.nextTask.Excute();
         	}else{
-        		super.currentcmd.OnCmdResponse(super.Context,success);
+        		super.CmdInfo.currentcmd.OnCmdResponse(super.CmdInfo,success);
         	}
         	
         }

@@ -9,6 +9,7 @@ import org.mdk.net.nio.*;
 import org.mdk.protocol.mysql.packet.*;
 import org.mdk.protocol.mysql.tools.MysqlPrase;
 import org.mdk.battle.mysqlagent.*;
+import org.mdk.battle.mysqlagent.cmd.CmdStatus;
 
 
 
@@ -62,8 +63,8 @@ public class BackendSynStateTask extends AbstractTask implements NIOHandler<Back
 	public void Excute() throws IOException {
 		// TODO Auto-generated method stub
 		setShareBuffer();
-		Context.BSession.setCurNIOHandler(this);
-		netBuffer netBuf = Context.BSession.sessionBuffer;
+		CmdInfo.Context.BSession.setCurNIOHandler(this);
+		netBuffer netBuf = CmdInfo.Context.BSession.sessionBuffer;
         netBuf.reset();
         QueryPacket queryPacket = new QueryPacket();
         queryPacket.packetId = 0;
@@ -77,10 +78,10 @@ public class BackendSynStateTask extends AbstractTask implements NIOHandler<Back
             netBuf.flip();
             netBuf.readIndex = netBuf.writeIndex;
             try {
-            	Context.BSession.writeToChannel();
+            	CmdInfo.Context.BSession.writeToChannel();
 			}catch(ClosedChannelException e){
 				e.printStackTrace();
-				Context.BSession.close(false, e.getMessage());
+				CmdInfo.Context.BSession.close(false, e.getMessage());
 				this.finished(false);
 				return;
 			} catch (Exception e) {
@@ -98,12 +99,12 @@ public class BackendSynStateTask extends AbstractTask implements NIOHandler<Back
 		// TODO Auto-generated method stub
 		revertShareBuffer();
 		if(super.isLastTask){
-        	super.currentcmd.OnCmdResponse(super.Context,success);
+        	super.CmdInfo.currentcmd.OnCmdResponse(super.CmdInfo,success);
         }else{
         	if(success){
         		super.nextTask.Excute();
         	}else{
-        		super.currentcmd.OnCmdResponse(super.Context,success);
+        		super.CmdInfo.currentcmd.OnCmdResponse(super.CmdInfo,success);
         	}
         	
         }

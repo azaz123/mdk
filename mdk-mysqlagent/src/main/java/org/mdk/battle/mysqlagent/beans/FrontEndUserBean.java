@@ -3,9 +3,8 @@ package org.mdk.battle.mysqlagent.beans;
 import java.util.List;
 
 public class FrontEndUserBean {
-    private String name;
-    private String password;
-    private List<String> schemas;
+    public String name;
+    public String password;
 
     public String getName() {
         return name;
@@ -23,16 +22,10 @@ public class FrontEndUserBean {
         this.password = password;
     }
 
-    public List<String> getSchemas() {
-        return schemas;
-    }
 
-    public void setSchemas(List<String> schemas) {
-        this.schemas = schemas;
-    }
 
     @Override
     public String toString() {
-        return "UserBean{" + "name='" + name + '\'' + ", password='" + password + '\'' + ", schemas=" + schemas + '}';
+        return "UserBean{" + "name='" + name + '\'' + ", password='" + password +  '}';
     }
 }

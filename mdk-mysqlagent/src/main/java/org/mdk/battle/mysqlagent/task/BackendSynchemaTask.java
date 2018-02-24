@@ -11,30 +11,35 @@ import org.mdk.protocol.mysql.tools.MysqlPrase;
 
 
 import org.mdk.battle.mysqlagent.*;
+import org.mdk.battle.mysqlagent.cmd.CmdStatus;
 
 
 
 public class BackendSynchemaTask extends AbstractTask implements NIOHandler<BackEndSession> {
-
+    private String databases;
+    
+	public void SetDatabase(String databases){
+		this.databases = databases;
+	}
 	@Override
 	public void Excute() throws IOException {
 		// TODO Auto-generated method stub
 		setShareBuffer();
-		Context.BSession.sessionBuffer.reset();
-		Context.BSession.setCurNIOHandler(this);
-		String databases = AllConfigure.INSTANCE.MysqlBeans.get("firstmysql").GetDatabase();
-		Context.BSession.sessionBuffer.reset();
+		CmdInfo.Context.BSession.sessionBuffer.reset();
+		CmdInfo.Context.BSession.setCurNIOHandler(this);
+		//String databases = AllConfigure.INSTANCE.MysqlBeans.get("firstmysql").GetDatabase();
+		CmdInfo.Context.BSession.sessionBuffer.reset();
 		CommandPacket packet = new CommandPacket();
 		packet.packetId = 0;
 		packet.command = MySQLPacket.COM_INIT_DB;
 		packet.arg = databases.getBytes();
-		packet.write(Context.BSession.sessionBuffer);
-		Context.BSession.sessionBuffer.flip();
-		Context.BSession.sessionBuffer.readIndex = Context.BSession.sessionBuffer.writeIndex;
+		packet.write(CmdInfo.Context.BSession.sessionBuffer);
+		CmdInfo.Context.BSession.sessionBuffer.flip();
+		CmdInfo.Context.BSession.sessionBuffer.readIndex = CmdInfo.Context.BSession.sessionBuffer.writeIndex;
 		try {
-			Context.BSession.writeToChannel();
+			CmdInfo.Context.BSession.writeToChannel();
 		}catch(ClosedChannelException e){
-			Context.BSession.close(false, e.getMessage());
+			CmdInfo.Context.BSession.close(false, e.getMessage());
 			e.printStackTrace();
 			this.finished(false);
 			return;
@@ -81,12 +86,12 @@ public class BackendSynchemaTask extends AbstractTask implements NIOHandler<Back
 		// TODO Auto-generated method stub
 		revertShareBuffer();
 		if(super.isLastTask){
-        	super.currentcmd.OnCmdResponse(super.Context,success);
+        	super.CmdInfo.currentcmd.OnCmdResponse(super.CmdInfo,success);
         }else{
         	if(success){
         		super.nextTask.Excute();
         	}else{
-        		super.currentcmd.OnCmdResponse(super.Context,success);
+        		super.CmdInfo.currentcmd.OnCmdResponse(super.CmdInfo,success);
         	}
         	
         }

@@ -6,12 +6,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.mdk.battle.mysqlagent.Handle.*;
-import org.mdk.battle.mysqlagent.cmd.DefaultSingleCmd;
+import org.mdk.battle.mysqlagent.cmd.*;
 import org.mdk.net.nio.NIOHandler;
 import org.mdk.net.nio.ReactorContext;
 import org.mdk.net.nio.Session;
 import org.mdk.net.nio.SessionManager;
 import org.mdk.battle.mysqlagent.task.*;
+
 
 
 public class FrontEndSessionMaganer implements SessionManager<FrontEndSession> {
@@ -23,8 +24,8 @@ public class FrontEndSessionMaganer implements SessionManager<FrontEndSession> {
 		// TODO Auto-generated method stub
 		System.out.println("FrontEndSessionMaganer createSession");
 		FrontEndSession fSession = new FrontEndSession(Context,channel);
-		AbstractTask AuthTask = MysqlTaskChainManager.INSTANCE.CreateTaskChain(DefaultSingleCmd.INSTANCE, fSession,null , 2);
-		AuthTask.Excute();
+		CmdRunTime HeadCmd= MysqlTaskChainManager.INSTANCE.CreateTaskChain(DefaultSingleCmd.INSTANCE, fSession,null , 2,null);
+		HeadCmd.headTask.Excute();
 		allSessions.add(fSession);
 		return null;
 	}

@@ -2,33 +2,66 @@ package org.mdk.battle.mysqlagent;
 
 import org.mdk.net.nio.*;
 
+
 import java.io.IOException;
 
+import org.mdk.battle.mysqlagent.util.*;
 import org.mdk.battle.mysqlagent.*;
 import org.mdk.battle.mysqlagent.beans.*;
 import org.mdk.battle.mysqlagent.cmd.PassThroughCmd;
 import org.mdk.battle.mysqlagent.*;
 import org.mdk.battle.mysqlagent.task.*;
 import org.mdk.battle.mysqlagent.cmd.*;
+import org.mdk.battle.mysqlagent.opencapacity.*;
+import java.util.*;
 
 public class MyCore {
+	
+	public static void loadConfig(ConfigEnum configEnum) throws IOException {
+        String fileName = configEnum.getFileName();
+        
+        if(configEnum.getClazz() == MysqlMetaBeansList.class) {
+        	MysqlMetaBeansList  beanslist = (MysqlMetaBeansList)YamlUtil.load(fileName, configEnum.getClazz());
+
+			for(int i =0 ; i<beanslist.getBeansList().size();i++) {
+				List<MysqlMetaBeans> tmp = beanslist.getBeansList();
+				AllConfigure.INSTANCE.MysqlBeans.put(tmp.get(i).GetName(),tmp.get(i));
+			}
+        }else if(configEnum.getClazz() == ServerBeans.class) {
+        	AllConfigure.INSTANCE.SerBeans = (ServerBeans)YamlUtil.load(fileName, configEnum.getClazz());
+        }else if(configEnum.getClazz() == FrontEndUserBean.class) {
+        	FrontEndUserBean userbean = (FrontEndUserBean)YamlUtil.load(fileName, configEnum.getClazz());
+        	AllConfigure.INSTANCE.FrontEndUserBeans.put(userbean.getName(),userbean);
+        }else if(configEnum.getClazz() == ComBeansList.class) {
+        	ComBeansList  combeanslist = (ComBeansList)YamlUtil.load(fileName, configEnum.getClazz());
+			for(int i =0 ; i<combeanslist.getComBeansList().size();i++) {
+				List<ComBean> tmp = combeanslist.getComBeansList();
+				if(tmp.get(i).getType().equals("python")) {
+					PyComImpl Com = new PyComImpl();
+					Com.Py = tmp.get(i).getPath();
+					HashMap<String,OneCom> elm = new HashMap<String,OneCom>();
+					elm.put(tmp.get(i).getName(), Com);
+					AllConfigure.INSTANCE.OCBeans.put("pre", elm);
+				}
+				
+			}
+        }
+    }
+	
+	public static void loadAll() throws IOException {
+        loadConfig(ConfigEnum.MYSQLBEANSLIST);
+	    loadConfig(ConfigEnum.SERVER);
+	    loadConfig(ConfigEnum.USER);
+	    loadConfig(ConfigEnum.COMBEANS);
+	}
+	
 	public static void main(String[] args) 
 	{
 		try{
 			//business mysql config
-			MysqlMetaBeans mysqlbeans = new MysqlMetaBeans();
-			mysqlbeans.SetIp("123.206.135.216");
-			mysqlbeans.SetPort(3307);
-			mysqlbeans.SetUserName("root");
-			mysqlbeans.SetPassword("123456");
-			mysqlbeans.SetName("firstmysql");
-			mysqlbeans.SetDatabase("hrz1");
+
+			loadAll();
 			
-			FrontEndUserBean userbean = new FrontEndUserBean();
-			userbean.setName("hrz");
-			userbean.setPassword("123456789");
-			AllConfigure.INSTANCE.FrontEndUserBeans.put("hrz", userbean);
-			AllConfigure.INSTANCE.MysqlBeans.put("firstmysql", mysqlbeans);
 			
 			/**
 			 * nio = reactor + acceptor
@@ -54,16 +87,29 @@ public class MyCore {
 			for(int i =0;i<cpus;i++){
 				RContexts[i] = new ReactorContext<FrontEndSession>(1024,FrontEndSessionMaganer.INSTANCE);
 			}
-			Acceptor.startServerChannel("127.0.0.1", 8080);
+			Acceptor.startServerChannel(AllConfigure.INSTANCE.SerBeans.getIP(), AllConfigure.INSTANCE.SerBeans.getPort());
 			nioRuntime.INSTANCE.setAcceptor(Acceptor);
 			nioRuntime.INSTANCE.setReactorInfo(RContexts, cpus);
 			nioRuntime.INSTANCE.start();
 			
 			//connect backendmysql
-			AbstractTask HeadTask = MysqlTaskChainManager.INSTANCE.CreateTaskChain(DefaultSingleCmd.INSTANCE, null,null , 1);
-			HeadTask.Excute();
-		}catch(Exception e){
 			
+			for(Map.Entry<String, MysqlMetaBeans> entry : AllConfigure.INSTANCE.MysqlBeans.entrySet())      
+			{   
+			    MysqlMetaBeans beanstmp = entry.getValue();
+			    System.out.println(beanstmp.GetDefNum());
+				for(int i=0;i<beanstmp.GetDefNum();i++) {
+				    CmdRunTime HeadCmd = MysqlTaskChainManager.INSTANCE.CreateTaskChain(DefaultSingleCmd.INSTANCE, null,null , 1,beanstmp);
+				    HeadCmd.headTask.Excute();
+				    System.out.println("count");
+			    }
+			}
+            
+			
+			System.out.println("count2");
+			
+		}catch(Exception e){
+			e.printStackTrace();
 		}
 			
 		

@@ -3,7 +3,8 @@ package org.mdk.battle.mysqlagent.Handle;
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
 
-import org.mdk.battle.mysqlagent.FrontEndSession;
+import org.mdk.battle.mysqlagent.*;
+import org.mdk.battle.mysqlagent.attr.CmdAttr;
 import org.mdk.net.nio.NIOHandler;
 import org.mdk.protocol.mysql.tools.MysqlPrase;
 import org.mdk.protocol.mysql.tools.bufferHelper;
@@ -36,8 +37,15 @@ public class CmdProxyHandle implements NIOHandler<FrontEndSession> {
 	@Override
 	public void onWriteFinished(FrontEndSession session) throws IOException {
                  //nothing to do,because this handle don't do any write action
-		session.setCurNIOHandler(FrontEndDefaultHandle.INSTANCE);
-		session.sessionBuffer.flip();
-		session.change2ReadOpts();
+		if(!session.currentCmdInfo.CmdAttrMap.containsKey(CmdAttr.CMD_ATTR_RESULTSET_ACCEPT_OVER.getKey())){
+			//last packet
+			session.setCurNIOHandler(FrontEndDefaultHandle.INSTANCE);
+			session.sessionBuffer.flip();
+			session.change2ReadOpts();
+		}else{
+			session.sessionBuffer.flip();
+			session.currentCmdInfo.Context.BSession.change2ReadOpts();
 		}
+		
+	}
 }
